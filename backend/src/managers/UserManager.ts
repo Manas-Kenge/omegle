@@ -3,38 +3,40 @@ import { RoomManager } from "./RoomManager";
 
 export interface User {
     socket: Socket;
-    name: String;
+    name: string;
 }
 
 export class UserManager {
     private users: User[];
-    private queue: String[];
+    private queue: string[];
     private roomManager: RoomManager;
-
+    
     constructor() {
         this.users = [];
         this.queue = [];
         this.roomManager = new RoomManager();
     }
 
-    addUser(user: User, socket: Socket) {
-        this.users.push({name, socket});
+    addUser(name: string, socket: Socket) {
+        this.users.push({
+            name, socket
+        })
         this.queue.push(socket.id);
         socket.emit("lobby");
         this.clearQueue()
         this.initHandlers(socket);
     }
 
-    removeUser(socketId: String) {
-        const user = this.users.find(user => user.socket.id === socketId);
-        this.users = this.users.filter(user => user.socket.id !== socketId);
-        this.queue = this.queue.filter(id => id !== socketId);
+    removeUser(socketId: string) {
+        const user = this.users.find(x => x.socket.id === socketId);
+        
+        this.users = this.users.filter(x => x.socket.id !== socketId);
+        this.queue = this.queue.filter(x => x === socketId);
     }
 
     clearQueue() {
-        console.log("Inside clear queue");
+        console.log("inside clear queues")
         console.log(this.queue.length);
-
         if (this.queue.length < 2) {
             return;
         }
@@ -52,7 +54,6 @@ export class UserManager {
 
         const room = this.roomManager.createRoom(user1, user2);
         this.clearQueue();
-
     }
 
     initHandlers(socket: Socket) {
@@ -68,4 +69,5 @@ export class UserManager {
             this.roomManager.onIceCandidates(roomId, socket.id, candidate, type);
         });
     }
+
 }
